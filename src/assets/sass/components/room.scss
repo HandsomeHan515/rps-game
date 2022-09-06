@@ -1,0 +1,55 @@
+.room {
+    width: 400px;
+    height: 100px;
+    margin: 6px 0;
+    padding: 20px;
+    border: 1px solid $border-color-base;
+    border-radius: 8px;
+
+    &-container {
+        position: absolute;
+        top: 200px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    &-player {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+
+        > div {
+            width: 160px;
+            height: 120px;
+            line-height: 40px;
+            text-align: center;
+            border: 1px solid $border-color-base;
+            border-radius: 6px;
+        }
+    }
+
+    &-toast {
+        text-align: center;
+        color: $warning-color;
+        margin-bottom: 20px;
+    }
+
+    &-btn {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        height: 60px;
+
+        > button {
+            min-width: 60px;
+        }
+    }
+
+    &-display {
+        text-align: center;
+        height: 60px;
+        line-height: 60px;
+    }
+}
