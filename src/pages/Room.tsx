@@ -4,8 +4,9 @@ import io from 'socket.io-client';
 import { SocketActionType, SocketResultType } from '../types';
 
 const url = 'ws://localhost:9001';
+const socket = io(url, { transports: ['websocket']});
 
-export default function GameRoom () {
+export default function Room () {
   const { roomId: room, userId: user } = useParams();
   const navigate = useNavigate();
 
@@ -15,15 +16,14 @@ export default function GameRoom () {
   const [playerTwo, setPlayerTwo] = useState<string>('');
   const [result, setResult] = useState<string>('');
 
-  const [rpsMap] = useState<SocketActionType>( {
+  const [rpsMap] = useState<SocketActionType>({
     'rock': '石头',
     'scissors': '剪刀',
     'paper': '布'
   });
 
-  const socket = io(url, { transports: ['websocket']});
-
   // https://socket.io/how-to/use-with-react-hooks
+  // the 2nd argument of the useEffect() method must be [], or else the hook will be triggered every time a new message arrives
   useEffect(() => {
     socket.on('connect', () => {
       console.log('client connect');
@@ -33,69 +33,83 @@ export default function GameRoom () {
       console.log('client disconnect');
     });
 
-    // 进入到某个游戏房间内
+    return () => {
+      socket.off('connect');
+      socket.off('disconnect');
+      // leave room
+      socket.emit('leave', { room, user });
+    };
+  }, []);
+
+  // join room
+  useEffect(() => {
+    console.log('join room');
+
     socket.emit('join', { room, user });
+  }, []);
 
-    // 开始游戏
-    socket.on('start play', () => {
-      console.log('人满了，可以开始游戏');
-      setIsPlay(true);
-    });
-
-    // 某一方退出游戏
-    socket.on('cancel play', () => {
-      console.log('人不够，不能玩游戏');
-      setIsPlay(false);
-    });
-
-    // room is full, exit
+  // room is full, exit
+  useEffect(() => {
     socket.on('room full', () => {
       setIsFull(true);
       setTimeout(() => { navigate(-1);  }, 1000);
     });
 
-    // 完成对弈了
-    socket.on('complete play', (data: SocketResultType) => {
-      const {  room, users } = data;
-      console.log('action result', room, users);
-      // 设置另一个人的选择结果  计算双方比赛结果
+    return () => {
+      socket.off('room full');
+    };
+  }, []);
 
-      console.log('complete play');
-
-      claculateResult(users);
+  //start game
+  useEffect(() => {
+    socket.on('start play', () => {
+      console.log('Start Game');
+      setIsPlay(true);
     });
 
+    return () => {
+      socket.off('start play');
+    };
+  }, []);
+
+  // cancel game
+  useEffect(() => {
+    socket.on('cancel play', () => {
+      console.log('Cancel Game');
+      setIsPlay(false);
+      setPlayOne('');
+      setPlayerTwo('');
+      setResult('');
+    });
 
     return () => {
-      console.log('clean up');
-
-      socket.off('connect');
-      socket.off('disconnect');
-
-      socket.off('join');
-      socket.off('start play');
       socket.off('cancel play');
-      socket.off('complete play');
-      socket.off('room full');
-
-      socket.emit('leave', { room, user });
     };
-  }, []); // the 2nd argument of the useEffect() method must be [], or else the hook will be triggered every time a new message arrives
+  }, []);
+
+  // complete game
+  useEffect(() => {
+    socket.on('complete play', (data: SocketResultType) => {
+      const { room, users } = data;
+      console.log('complete play', room, users);
+      // calculate game result
+      calculateGameResult(users);
+    });
+
+    return () => {
+      socket.off('complete play');
+    };
+  }, []);
 
   function handleClick (type: string) {
-    console.log('click button');
-
-
-    // 向服务端发送自己选择的类型，服务端接到后向另一个人发送我选择了
+    // select one
     socket.emit('select', { type, room, user });
-
-    // 设置自己选择的结果
+    // screen display
     setPlayOne(type);
   }
 
-  function claculateResult (users: SocketActionType)  {
-
-    // 设置另一个人的结果
+  function calculateGameResult (users: SocketActionType)  {
+    // get other player
     const other =  Object.keys(users).find(u => u !== user);
     console.log('other', other);
 
@@ -104,11 +118,11 @@ export default function GameRoom () {
     }
 
     let result = '';
-    // 取胜集合
     if (user && other) {
       if (users[user] === users[other]) {
         result = '平局';
       } else {
+        // set of wins
         const wins =[['paper', 'rock'], ['rock', 'scissors'], ['scissors', 'paper']];
         for (let i = 0; i < wins.length; i++) {
           const [a, b] = wins[i];
@@ -120,13 +134,10 @@ export default function GameRoom () {
           }
         }
       }
-
     }
 
     setResult(result);
     setIsPlay(false);
-    // 这一局结束
-    socket.emit('next play');
   }
 
   function renderFull () {
@@ -149,9 +160,6 @@ export default function GameRoom () {
                     {rpsMap[playerOne]}
                   </div>
                 </div>
-                {
-                  isPlay ? <button>开始游戏</button> : null
-                }
                 <div>
                   <div>你</div>
                   <div>

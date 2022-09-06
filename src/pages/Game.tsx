@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { addRoom, getRoomList } from '../api';
 import { RoomType, GetRoomListResType, AddRoomResType } from '../types';
 
-const userId = new Date().getTime();
-
 export default function Game () {
   const [list, setList] = useState<RoomType[]>([]);
 
@@ -16,6 +14,7 @@ export default function Game () {
     });
   }, []);
 
+  // 添加房间后需要通知其他用户更新列表
   function handleAdd () {
     const text = prompt('请输入房间名称！！！');
     if (!text) return;
@@ -43,7 +42,7 @@ export default function Game () {
           list.map((item) => {
             return (
               <li key={item.id} >
-                <Link to={`/room/${item.id}/user/${userId}`}>
+                <Link to={`/room/${item.id}/user/${new Date().getTime()}`}>
                   <div className='game' >
                     {item.text}
                   </div>
