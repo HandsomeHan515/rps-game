@@ -37,15 +37,14 @@ export default function Room () {
       socket.off('connect');
       socket.off('disconnect');
       // leave room
-      socket.emit('leave', { room, user });
+      socket.emit('leave', room);
     };
   }, []);
 
   // join room
   useEffect(() => {
     console.log('join room');
-
-    socket.emit('join', { room, user });
+    socket.emit('join', room);
   }, []);
 
   // room is full, exit
@@ -74,8 +73,8 @@ export default function Room () {
 
   // cancel game
   useEffect(() => {
-    socket.on('cancel play', () => {
-      console.log('Cancel Game');
+    socket.on('cancel play', room => {
+      console.log('Cancel Game', room);
       setIsPlay(false);
       setPlayOne('');
       setPlayerTwo('');
