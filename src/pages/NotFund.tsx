@@ -8,7 +8,7 @@ export default function NotFound () {
         <div className='not-found-box-circle' />
         <div className='not-found-box-number'>4</div>
       </div>
-      <div className='not-found-warning'>当前页面不存在</div>
+      <div className='not-found-warning'>当前页面不存在...</div>
     </div>
   );
 }
