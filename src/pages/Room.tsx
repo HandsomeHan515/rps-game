@@ -126,10 +126,10 @@ export default function Room () {
         for (let i = 0; i < wins.length; i++) {
           const [a, b] = wins[i];
           if (users[user] === a && users[other] === b) {
-            result = '我赢了';
+            result = 'I Win';
             break;
           } else {
-            result = '你赢了';
+            result = 'You Win';
           }
         }
       }
