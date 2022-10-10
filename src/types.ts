@@ -1,25 +1,17 @@
 export interface RoomType {
-  id?: string | number,
-  text: string
-}
-
-export interface GetRoomListResType {
-  success: boolean,
-  data:  RoomType[]
+	id?: number;
+	name: string;
 }
 
 export interface AddRoomResType {
-  success: boolean,
-  data: Array<number | string>
+	success: boolean;
 }
 
-
 export interface SocketActionType {
-  [key: string]: string
+	[key: string]: string;
 }
 
 export interface SocketResultType {
-  room: string,
-  users: SocketActionType,
+	userId: string;
+	gameType: string;
 }
-
