@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
+import { BASE_URL } from '../api';
 import { SocketActionType, SocketResultType } from '../types';
 
-const url = 'ws://rps-backend-dev.herokuapp.com';
+const url = BASE_URL;
 // const url = 'ws://localhost:9001';
 const socket = io(url, { transports: ['websocket'] });
 
