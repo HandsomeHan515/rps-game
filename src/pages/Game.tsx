@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { addRoom, getRoomList } from '../api';
-import { RoomType, AddRoomResType } from '../types';
+import { RoomType } from '../types';
 
 export default function Game() {
 	const [list, setList] = useState<RoomType[]>([]);
 
 	useEffect(() => {
-		getRoomList<RoomType[]>().then(res => {
+		getRoomList().then(res => {
 			setList(res);
 		});
 	}, []);
@@ -17,9 +17,9 @@ export default function Game() {
 		const text = prompt('请输入房间名称！！！');
 		if (!text) return;
 
-		addRoom<AddRoomResType>({ name: text }).then(res => {
+		addRoom({ name: text }).then(res => {
 			if (res.success) {
-				getRoomList<RoomType[]>().then(res => {
+				getRoomList().then(res => {
 					setList(res);
 				});
 			}
